@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS TWiki Assistant — KAUST Academy × CERN</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background: #020b1a;
+    overflow-x: hidden;
+  }
+
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background:
+      radial-gradient(ellipse 600px 600px at 20% 20%, rgba(0,51,153,0.5) 0%, transparent 60%),
+      radial-gradient(ellipse 500px 500px at 80% 30%, rgba(0,160,210,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 700px 400px at 50% 80%, rgba(0,100,178,0.3) 0%, transparent 60%);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    50%  { transform: translate(30px, -40px) rotate(2deg); }
+    100% { transform: translate(-20px, 20px) rotate(-1deg); }
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: float 12s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 300px; height: 300px; background: #003399; top: 10%; left: -5%; }
+  .orb-2 { width: 250px; height: 250px; background: #00a0d2; top: 50%; right: -8%; animation-delay: -4s; animation-duration: 15s; }
+  .orb-3 { width: 200px; height: 200px; background: #0077b6; bottom: 10%; left: 30%; animation-delay: -8s; animation-duration: 18s; }
+  @keyframes float {
+    0%   { transform: translateY(0) scale(1); }
+    50%  { transform: translateY(-40px) scale(1.1); }
+    100% { transform: translateY(20px) scale(0.95); }
+  }
+
+  .waves {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .waves svg {
+    display: block;
+    width: 200%;
+    height: 100%;
+    animation: waveScroll 8s linear infinite;
+  }
+  @keyframes waveScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px 16px 160px;
+    min-height: 100vh;
+  }
+
+  .cern-logo {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,0.15);
+    box-shadow: 0 8px 32px rgba(0,51,153,0.4);
+    margin-bottom: 24px;
+    animation: logoIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes logoIn {
+    0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    color: #ffffff;
+    line-height: 1.2;
+    margin-bottom: 8px;
+    animation: fadeUp 0.7s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.88rem;
+    color: rgba(180, 210, 240, 0.85);
+    font-weight: 500;
+    margin-bottom: 32px;
+    max-width: 340px;
+    line-height: 1.5;
+    animation: fadeUp 0.7s 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes fadeUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .notice-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(240, 192, 64, 0.1);
+    border: 1px solid rgba(240, 192, 64, 0.2);
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 0.72rem;
+    color: rgba(240, 210, 120, 0.85);
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 36px;
+  }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .link-btn:nth-child(1) { animation-delay: 0.3s; }
+  .link-btn:nth-child(2) { animation-delay: 0.4s; }
+  .link-btn:nth-child(3) { animation-delay: 0.5s; }
+  .link-btn:nth-child(4) { animation-delay: 0.6s; }
+
+  .link-btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(0, 160, 210, 0.5);
+    box-shadow: 0 12px 40px rgba(0, 100, 200, 0.3), 0 0 0 1px rgba(0,160,210,0.2);
+  }
+
+  .link-btn .icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+  }
+  .icon-gitlab  { background: rgba(252, 109, 38, 0.15); }
+  .icon-paper   { background: rgba(0, 160, 210, 0.15); }
+  .icon-poster  { background: rgba(138, 92, 246, 0.15); }
+  .icon-record  { background: rgba(239, 68, 68, 0.15); }
+
+  .link-btn .label { flex: 1; }
+  .link-btn .desc {
+    font-size: 0.75rem;
+    color: rgba(180, 210, 240, 0.6);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .link-btn .arrow {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.3);
+    transition: all 0.3s;
+  }
+  .link-btn:hover .arrow { color: #00a0d2; transform: translateX(4px); }
+
+  .sep {
+    width: 40px;
+    height: 3px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, #003399, #00a0d2);
+    margin: 0 auto 28px;
+    animation: fadeUp 0.6s 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .section-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(0, 160, 210, 0.7);
+    text-align: center;
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .team-photo-wrap {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    animation: fadeUp 0.6s 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .team-photo-wrap img {
+    width: 100%;
+    display: block;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+  }
+  .photo-placeholder {
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, rgba(0,51,153,0.3), rgba(0,160,210,0.2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.6s 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .member {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 18px 12px;
+    text-align: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: all 0.3s;
+  }
+  .member:hover {
+    background: rgba(255,255,255,0.1);
+    transform: translateY(-2px);
+    border-color: rgba(0,160,210,0.3);
+  }
+  .member.supervisor {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(0,51,153,0.15), rgba(0,160,210,0.1));
+    border-color: rgba(0,160,210,0.2);
+  }
+  .member .flag { font-size: 1.8rem; display: block; margin-bottom: 8px; }
+  .member .name {
+    font-weight: 600;
+    font-size: 0.84rem;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+  .member .role {
+    font-size: 0.72rem;
+    color: rgba(180, 210, 240, 0.5);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    animation: fadeUp 0.6s 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .footer .dates {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: rgba(0, 160, 210, 0.6);
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+  }
+  .footer .org {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.25);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .page { padding: 36px 14px 140px; }
+    .title { font-size: 1.65rem; }
+    .cern-logo { width: 60px; height: 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<div class="waves">
+  <svg viewBox="0 0 2880 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+    <path d="M0 60 Q180 20 360 50 T720 40 T1080 55 T1440 35 T1800 50 T2160 40 T2520 55 T2880 35 L2880 120 L0 120Z" fill="rgba(0,51,153,0.25)"/>
+    <path d="M0 75 Q200 50 400 65 T800 55 T1200 70 T1440 50 T1800 65 T2200 55 T2600 70 T2880 50 L2880 120 L0 120Z" fill="rgba(0,100,178,0.15)"/>
+    <path d="M0 90 Q240 70 480 85 T960 75 T1440 88 T1920 78 T2400 88 T2880 78 L2880 120 L0 120Z" fill="rgba(0,160,210,0.1)"/>
+  </svg>
+</div>
+
+<div class="page">
+
+  <img src="cern_logo.webp" alt="CERN" class="cern-logo">
+
+  <h1 class="title">CMS TWiki Assistant</h1>
+  <p class="subtitle">AI-Powered Semantic Search for CMS Experiment Documentation at CERN</p>
+
+  <div class="notice-pill">
+    <span>🔒</span> Built on CMS-internal data · Not publicly available
+  </div>
+
+  <div class="links">
+    <a href="https://gitlab.cern.ch/bkiahamy/cms-twiki-assistant" target="_blank" class="link-btn">
+      <span class="icon icon-gitlab">🦊</span>
+      <div class="label">
+        GitLab Repository
+        <div class="desc">Source code and documentation</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="#" target="_blank" class="link-btn">
+      <span class="icon icon-paper">📄</span>
+      <div class="label">
+        Research Paper
+        <div class="desc">Full technical report</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="#" target="_blank" class="link-btn">
+      <span class="icon icon-poster">🪧</span>
+      <div class="label">
+        Project Poster
+        <div class="desc">Visual overview</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+    <a href="#" target="_blank" class="link-btn">
+      <span class="icon icon-record">🎙️</span>
+      <div class="label">
+        Presentation Recording
+        <div class="desc">Slides walkthrough with narration</div>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <div class="sep"></div>
+  <div class="section-label">Meet the Team</div>
+
+  <div class="team-photo-wrap">
+    <!-- Replace with: <img src="team_photo.jpg" alt="Team"> -->
+    <div class="photo-placeholder">📸 Team Photo</div>
+  </div>
+
+  <div class="team-grid">
+    <div class="member">
+      <span class="flag">🇸🇦</span>
+      <div class="name">Buruj Mamdouh Kiahamy</div>
+      <div class="role">Developer</div>
+    </div>
+    <div class="member">
+      <span class="flag">🇧🇭</span>
+      <div class="name">Taha Almohamed</div>
+      <div class="role">Developer</div>
+    </div>
+    <div class="member">
+      <span class="flag">🇴🇲</span>
+      <div class="name">Abrar Saif Rashid Alsaidi</div>
+      <div class="role">Developer</div>
+    </div>
+    <div class="member supervisor">
+      <span class="flag">🇵🇰</span>
+      <div class="name">Mehnaz Hafeez</div>
+      <div class="role">Supervisor · CERN</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="dates">28 June — 21 August 2026</div>
+    <div class="org">KAUST Academy Internship at CERN<br>CMS Collaboration</div>
+  </div>
+
+</div>
+
+</body>
+</html>
