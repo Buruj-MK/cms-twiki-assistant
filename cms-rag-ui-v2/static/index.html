@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS Docs Assistant</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Top bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="cern-logo">CERN</div>
+                <div class="topbar-title">
+                    <h1>CMS docs assistant</h1>
+                    <span class="topbar-subtitle">Powered by Qwen 2.5 · 44,677 TWiki pages indexed</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-btn" id="btn-stats" title="Feedback stats">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="2" y="13" width="4" height="8" rx="1"/></svg>
+                    Stats
+                </button>
+                <button class="topbar-btn" id="btn-about" title="About">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    About
+                </button>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Sidebar: Chat History -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <span>Chat history</span>
+                    <button class="btn-icon" id="btn-new-chat" title="New chat">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    </button>
+                </div>
+                <div class="sidebar-list" id="history-list">
+                    <!-- Populated by JS -->
+                </div>
+            </aside>
+
+            <!-- Chat area -->
+            <main class="chat-area">
+                <!-- Welcome screen -->
+                <div class="welcome" id="welcome-screen">
+                    <div class="welcome-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#003399" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <h2>CMS documentation assistant</h2>
+                    <p>Ask questions about CMS TWiki documentation — trigger systems, data analysis, CMSSW, workflows, and more.</p>
+                    <div class="welcome-examples">
+                        <button class="example-btn" data-q="How do I migrate TWiki pages to the new documentation system?">How do I migrate TWiki pages?</button>
+                        <button class="example-btn" data-q="What is the CMS trigger system and how does it work?">What is the CMS trigger system?</button>
+                        <button class="example-btn" data-q="How can I access a GPU on LXPLUS?">How to access GPU on LXPLUS?</button>
+                    </div>
+                </div>
+
+                <!-- Messages container -->
+                <div class="messages" id="messages"></div>
+
+                <!-- Input bar -->
+                <div class="input-bar">
+                    <div class="input-wrapper">
+                        <textarea
+                            id="user-input"
+                            placeholder="Ask about CMS documentation..."
+                            rows="1"
+                            autocomplete="off"
+                        ></textarea>
+                        <button class="btn-send" id="btn-send" title="Send" disabled>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                        </button>
+                    </div>
+                    <div class="input-footer">CMS Docs Assistant may produce inaccurate information. Verify important details.</div>
+                </div>
+            </main>
+
+            <!-- Sources panel -->
+            <aside class="sources-panel" id="sources-panel">
+                <div class="sources-header">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Sources</span>
+                </div>
+                <div class="sources-content" id="sources-content">
+                    <div class="sources-empty">Sources will appear here when you ask a question.</div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- About modal -->
+    <div class="modal-overlay" id="about-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>About CMS docs assistant</h3>
+                <button class="btn-icon modal-close" id="close-about">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>This tool provides AI-powered semantic search over <strong>44,677 CMS TWiki documentation pages</strong>.</p>
+                <p>It uses a hybrid retrieval pipeline (dense + BM25 → RRF fusion → reranking) with Qwen 2.5-14B for response generation.</p>
+                <p><strong>Pipeline:</strong> TWiki → twiki2gfm.py → chunker.py → UAE-Large-V1 embeddings → ChromaDB → Hybrid retrieval → vLLM</p>
+                <p><strong>Built by:</strong> CMS Documentation Modernisation Team, CERN · Summer 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats modal -->
+    <div class="modal-overlay" id="stats-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Feedback stats</h3>
+                <button class="btn-icon modal-close" id="close-stats">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body" id="stats-body">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

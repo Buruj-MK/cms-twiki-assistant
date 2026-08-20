@@ -1,0 +1,9 @@
+pysqlite3-binary
+httpx
+numpy
+torch
+chromadb
+rank-bm25
+fastapi
+uvicorn
+sentence-transformers

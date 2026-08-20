@@ -1,0 +1,8 @@
+﻿__pycache__/
+*.pyc
+.venv/
+venv/
+*.jsonl
+TWIKI2GFM_OUTPUT/
+Raw_Twiki_Files/
+chunks4_report.xlsx
